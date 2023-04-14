@@ -2,7 +2,7 @@
 <div>
     <script>
 
-        document.write('<canvas id="23Week2></canvas>');
+        document.write('<canvas id="23Week2"></canvas>');
 
         // load the csv file and convert it into an array of objects
         d3.csv("https://raw.githubusercontent.com/xhelgo/dyplom-csv/main/Spotify/csv/23week2.csv").then(makeChart);
@@ -21,7 +21,7 @@
 
             // extract the colors from the third column of the csv
             const colors = data.map(function (d) {
-                if (d.UA == "UA") return "#D8B655";
+                if (d.UA == "UA") return "#ffc61e";
                 if (d.RU == "RU") return "#E55759";
                 if (d.OTHER == "OTHER") return "#4198D7";
             });
