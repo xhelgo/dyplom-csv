@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v6.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<style>
+    .tooltip-text {
+        font-family: "Arial"
+    }
+</style>
+
+<script>
+
+    // set the dimensions and margins of the graph
+    const margin = { top: 20, right: 30, bottom: 55, left: 70 },
+        width = 900 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    // append the svg object to the body of the page
+    const svg = d3.select("#my_dataviz")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    //Read the data
+    d3.csv("https://raw.githubusercontent.com/xhelgo/dyplom-csv/main/Spotify/spotify_sum_stats.csv",
+
+        // When reading the csv, I must format variables:
+        function (d) {
+            return { date: d3.timeParse("%d.%m.%Y")(d.date), value: d.streams }
+        }).then(
+
+            // Now I can use this dataset:
+            function (data) {
+
+                // Add X axis --> it is a date format
+                const x = d3.scaleTime()
+                    .domain(d3.extent(data, function (d) { return d.date; }))
+                    .range([0, width]);
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x))
+                    .selectAll("text")
+                    .attr("transform", "translate(-10,0)rotate(-45)")
+                    .style("text-anchor", "end");
+
+
+                // Add Y axis
+                const y = d3.scaleLinear()
+                    .domain([5000000, 12000000])
+                    .range([height, 0]);
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                // Add the line
+                svg.append("path")
+                    .datum(data)
+                    .attr("fill", "none")
+                    .attr("stroke", "steelblue")
+                    .attr("stroke-width", 1.5)
+                    .attr("d", d3.line()
+                        .x(function (d) { return x(d.date) })
+                        .y(function (d) { return y(d.value) })
+                    );
+
+// Add dots
+var dots = svg.selectAll("dot")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("cx", function (d) { return x(d.date); })
+    .attr("cy", function (d) { return y(d.value); })
+    .attr("r", 3)
+    .style("fill", "steelblue")
+    .style("stroke", "steelblue");
+
+// Add mouse events to the dots
+dots.on("mouseover", function(event, d) {
+    // Show tooltip
+    tooltip.style("visibility", "visible");
+    // Change circle color to red
+    d3.select(this).style("fill", "red");
+    // Increase circle radius to 5
+    d3.select(this).attr("r", 5);
+  })
+  .on("mousemove", function(event, d) {
+    // Use the bisector function to find the closest data point to the mouse position
+    var x0 = x.invert(d3.pointer(event)[0]);
+    var i = bisect(data, x0, 1);
+    var d0 = data[i - 1];
+    var d1 = data[i];
+    var d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+
+    // Format the date and value for the tooltip
+    const formatDate = x.tickFormat(null, "%d.%m.%Y");
+    const formatValue = y.tickFormat(100);
+
+    // Set the tooltip text and position
+    return tooltip
+      .style("top", (event.pageY - 5) + "px")
+      .style("left", (event.pageX + 5) + "px")
+      .html(`<p class="tooltip-text">Дата: ${formatDate(d.date)} <br>
+             Стріми: ${formatValue(d.value)}</p>`);
+  })
+  .on("mouseout", function(event, d) {
+    // Hide tooltip
+    tooltip.style("visibility", "hidden");
+    // Change circle color back to steelblue
+    d3.select(this).style("fill", "steelblue");
+    // Decrease circle radius back to 3
+    d3.select(this).attr("r", 3);
+  });
+
+                // create a tooltip
+                const tooltip = d3.select("#my_dataviz")
+                    .append("div")
+                    .style("position", "absolute")
+                    .style("visibility", "hidden")
+                    .style("background-color", "#f8f9fa")
+                    .style("border", "solid")
+                    .style("border-width", "1px")
+                    .style("border-radius", "2px")
+                    .style("padding", "5px");
+
+                // Define a bisector function
+                var bisect = d3.bisector(function (d) { return d.date; }).left;
+
+                // Add a pointer event listener to the line plot
+                svg.append("path")
+                    .datum(data)
+                    .attr("fill", "none")
+                    .attr("stroke", "steelblue")
+                    .attr("stroke-width", 1.75)
+                    .attr("d", d3.line()
+                        .x(function (d) { return x(d.date) })
+                        .y(function (d) { return y(d.value) })
+                    )
+                svg.append("rect")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .style("fill", "none")
+                    .style("pointer-events", "all")
+                    .on("mouseover", function (event, d) {
+                        return tooltip.style("visibility", "visible");
+                    })
+                    .on("mouseover", function (event, d) {
+                        return tooltip.style("visibility", "visible");
+                    })
+                    .on("mousemove", function (event, d) {
+
+                        // Use the bisector function to find the closest data point to the mouse position
+                        var x0 = x.invert(d3.pointer(event)[0]);
+                        var i = bisect(data, x0, 1);
+                        var d0 = data[i - 1];
+                        var d1 = data[i];
+                        var d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+
+                        // Format the date and value for the tooltip
+                        const formatDate = x.tickFormat(null, "%d.%m.%Y");
+                        const formatValue = y.tickFormat(100);
+
+                        // Set the tooltip text and position
+                        return tooltip
+                            .style("top", (event.pageY - 5) + "px")
+                            .style("left", (event.pageX + 5) + "px")
+                            .html(`<p class="tooltip-text">Дата: ${formatDate(d.date)} <br>
+             Стріми: ${formatValue(d.value)}</p>`);
+                    })
+                    .on("mouseout", function () {
+                        return tooltip.style("visibility", "hidden");
+                    });
+            })
+</script>
