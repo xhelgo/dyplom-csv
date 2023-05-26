@@ -1,0 +1,119 @@
+
+<div>
+    <script>
+
+        document.write('<canvas id="appl_Week6"></canvas>');
+
+        // load the csv file and convert it into an array of objects
+        d3.csv("https://raw.githubusercontent.com/xhelgo/dyplom-csv/main/Apple Music/csv/week6.csv").then(makeChart);
+
+        // define a function to make the chart
+        function makeChart(data) {
+            // extract the labels from the first column of the csv
+            const labels = data.map(function (d) {
+                return d.Position;
+            });
+
+            // set the data values to 1 for all bars
+            const values = data.map(function (d) {
+                return 1;
+            });
+
+            // extract the colors from the third column of the csv
+            const colors = data.map(function (d) {
+                if (d.UA == "UA") return "#FFE53E";
+                if (d.RU == "RU") return "#F06663";
+                if (d.OTHER == "OTHER") return "#4198D7";
+            });
+
+            // create a bar chart with chart js      
+            new Chart("appl_Week6",
+                {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: colors
+                        }]
+                    },
+
+                    options: {
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: "top",
+                                align: "center",
+                                labels: {
+                                    // Use circle instead of line for legend items
+                                    // usePointStyle: true,
+
+                                    // Generate labels with custom text
+                                    generateLabels: function (chart) {
+                                        // get the unique colors from the data
+                                        const colors = [...new Set(chart.data.datasets[0].backgroundColor)];
+                                        // return an array of legend items
+                                        return colors.map(c => {
+                                            // get the category associated with the color
+                                            const category = c === "#FFE53E" ? "українські виконавці" : c === "#F06663" ? "російські виконавці" : c === "#4198D7" ? "виконавці інших країн" : "UNKNOWN";
+                                            //
+                                            const count = chart.data.datasets[0].data.filter((d, i) => chart.data.datasets[0].backgroundColor[i] === c).length;
+                                            // return an object with the text and fillStyle properties
+                                            return {
+                                                text: `${category} (${count})`,
+                                                fillStyle: c
+                                            };
+                                        });
+                                    }
+                                }
+                            },
+
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        // get the index of the hovered bar
+                                        const index = context.dataIndex;
+                                        // get the corresponding row from the csv
+                                        const d = data[index];
+                                        // return an array with the artist, track name and number of streams
+                                        return [
+                                            d.Artist + " - " + d.Song
+                                        ];
+                                    }
+                                },
+                                yAlign: 'top',
+                            }
+                        },
+
+                        scales: {
+                            y: {
+                                ticks: {
+                                    beginAtZero: true,
+                                    display: false
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    beginAtZero: true,
+                                    callback: function (value) {
+                                        var values = [25, 50, 75];
+                                        if (values.includes(value)) {
+                                            return value;
+                                        } else if (value < 1) {
+                                            return 0;
+                                        } else if (value > 98) {
+                                            return 100;
+                                        }
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: "Сходинка в чарті"
+                                }
+                            }
+                        }
+                    }
+                });
+        }
+    </script>
+</div>
