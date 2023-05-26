@@ -11,7 +11,7 @@
         function makeChart(data) {
             // extract the labels from the first column of the csv
             const labels = data.map(function (d) {
-                return d.rank;
+                return d.Rank;
             });
 
             // set the data values to 1 for all bars
@@ -77,8 +77,8 @@
                                         const d = data[index];
                                         // return an array with the artist, track name and number of streams
                                         return [
-                                            d.artist_names + " - " + d.track_name,
-                                            "К-сть стримів: " + d.streams
+                                            d["Artist Names"] + " - " + d["Track Name"],
+                                            "К-сть стримів: " + d.Views
                                         ];
                                     }
                                 },
@@ -97,13 +97,13 @@
                                 ticks: {
                                     beginAtZero: true,
                                     callback: function (value) {
-                                        var values = [50, 100, 150];
+                                        var values = [25, 50, 75];
                                         if (values.includes(value)) {
                                             return value;
                                         } else if (value < 1) {
                                             return 0;
-                                        } else if (value > 198) {
-                                            return 200;
+                                        } else if (value > 98) {
+                                            return 100;
                                         }
                                     }
                                 },

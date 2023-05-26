@@ -2,7 +2,7 @@
 <div>
     <script>
 
-        document.write('<canvas id="23Week4"></canvas>');
+        document.write('<canvas id="yt_23Week4"></canvas>');
 
         // load the csv file and convert it into an array of objects
         d3.csv("https://raw.githubusercontent.com/xhelgo/dyplom-csv/main/YouTube Music/csv/23week4.csv").then(makeChart);
@@ -11,7 +11,7 @@
         function makeChart(data) {
             // extract the labels from the first column of the csv
             const labels = data.map(function (d) {
-                return d.rank;
+                return d.Rank;
             });
 
             // set the data values to 1 for all bars
@@ -27,7 +27,7 @@
             });
 
             // create a bar chart with chart js      
-            new Chart("23Week4",
+            new Chart("yt_23Week4",
                 {
                     type: "bar",
                     data: {
@@ -77,8 +77,8 @@
                                         const d = data[index];
                                         // return an array with the artist, track name and number of streams
                                         return [
-                                            d.artist_names + " - " + d.track_name,
-                                            "К-сть стримів: " + d.streams
+                                            d["Artist Names"] + " - " + d["Track Name"],
+                                            "К-сть стримів: " + d.Views
                                         ];
                                     }
                                 },
@@ -97,13 +97,13 @@
                                 ticks: {
                                     beginAtZero: true,
                                     callback: function (value) {
-                                        var values = [50, 100, 150];
+                                        var values = [25, 50, 75];
                                         if (values.includes(value)) {
                                             return value;
                                         } else if (value < 1) {
                                             return 0;
-                                        } else if (value > 198) {
-                                            return 200;
+                                        } else if (value > 98) {
+                                            return 100;
                                         }
                                     }
                                 },
